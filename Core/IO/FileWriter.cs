@@ -29,7 +29,10 @@ namespace Core.IO
                 token.ThrowIfCancellationRequested();
                 if (fileBlock.BlockNumber == _nextBlockForWriting)
                 {
-                    WriteBlock(fileBlock);
+                    using (fileBlock)
+                    {
+                        WriteBlock(fileBlock);
+                    }
                     continue;
                 }
 
@@ -44,9 +47,11 @@ namespace Core.IO
         {
             while (_unsortedItems.ContainsKey(_nextBlockForWriting))
             {
-                var skippedBlock = _unsortedItems[_nextBlockForWriting];
-                WriteBlock(skippedBlock);
-                _unsortedItems.Remove(skippedBlock.BlockNumber);
+                using (var skippedBlock = _unsortedItems[_nextBlockForWriting])
+                {
+                    WriteBlock(skippedBlock);
+                    _unsortedItems.Remove(skippedBlock.BlockNumber);
+                }
             }
         }
         private void WriteBlock(FileBlock block)
@@ -57,7 +62,6 @@ namespace Core.IO
             }
 
             _nextBlockForWriting++;
-            block.Dispose();
         }
     }
 }
