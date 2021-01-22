@@ -16,6 +16,9 @@ namespace Core.Models
             _isArrayPoolBuffer = isArrayPoolBuffer;
         }
 
+        public Buffer(Byte[] buffer) : this(buffer, buffer.Length, false)
+        { }
+
         public void UpdateActualSize(Int32 newActualSize)
         {
             if (_disposed)

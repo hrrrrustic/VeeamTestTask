@@ -25,7 +25,7 @@ namespace Core.CoreLogic
             switch (_configuration.Mode)
             {
                 case WorkMode.Decompress:
-                    Execute(new Decompressor(_configuration.BlockSize), new BlockReader(), new DecompressedBlockWriter());
+                    Execute(new Decompressor(), new BlockReader(), new DecompressedBlockWriter());
                     return;
                 case WorkMode.Compress:
                     Execute(new Compressor(), new DecompressedBlockReader(_configuration.BlockSize), new BlockWriter());
@@ -93,7 +93,6 @@ namespace Core.CoreLogic
                     .WithOnException(_context.Terminate)
                     .Start();
             }
-                
 
             return workers;
         }

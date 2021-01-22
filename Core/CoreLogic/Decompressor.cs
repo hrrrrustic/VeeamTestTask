@@ -8,26 +8,20 @@ namespace Core.CoreLogic
 {
     public class Decompressor : IFileBlockHandler
     {
-        private readonly int _blockSize;
-        public Decompressor(Int32 blockSize)
-        {
-            _blockSize = blockSize;
-        }
-
         public FileBlock HandleBlock(FileBlock block)
         {
-            Buffer buffer = Buffer.GetBuffer(_blockSize);
-
-            using (MemoryStream blockForDecompressing = new MemoryStream(block.Data.ByteBuffer, 0, block.Data.ActualSize))
+            using (MemoryStream resultStream = new MemoryStream())
             {
-                using (GZipStream gZipStream = new GZipStream(blockForDecompressing, CompressionMode.Decompress))
+                using (MemoryStream blockForDecompressing = new MemoryStream(block.Data.ByteBuffer, 0, block.Data.ActualSize))
                 {
-                    var decompressedSize = gZipStream.Read(buffer.ByteBuffer);
-                    buffer.UpdateActualSize(decompressedSize);
+                    using (GZipStream gZipStream = new GZipStream(blockForDecompressing, CompressionMode.Decompress))
+                    {
+                        gZipStream.CopyTo(resultStream);
+                    }
                 }
-            }
 
-            return new FileBlock(block.BlockNumber, buffer);
+                return new FileBlock(block.BlockNumber, new Buffer(resultStream.ToArray()));
+            }
         }
     }
 }

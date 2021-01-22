@@ -22,13 +22,13 @@ namespace Core.CoreLogic
         {
             foreach (var fileBlock in Input.GetConsumingEnumerable(token))
             {
-                token.ThrowIfCancellationRequested();
-                FileBlock compressedBlock = _handler.HandleBlock(fileBlock);
-                Output.AddItem(compressedBlock);
-                fileBlock.Dispose();
+                using (fileBlock)
+                {
+                    token.ThrowIfCancellationRequested();
+                    FileBlock handledBlock = _handler.HandleBlock(fileBlock);
+                    Output.AddItem(handledBlock);
+                }
             }
-
-            throw new ArgumentException("AUF");
         }
     }
 }
